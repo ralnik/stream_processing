@@ -1,0 +1,255 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: ralnik@mail.ru
+  title: Сервис заказа
+  version: 0.1.0
+tags:
+  - name: billingService 
+    description: Биллинг сервис
+  - name: orderService
+    description: Сервис заказа
+  - name: notificationService
+    description: Сервис нотификаций
+paths:
+  /billing/register:
+    post:
+      tags:
+        - billingService
+      summary: Регистрация пользователя
+      description: Регистрация пользователя. После регистрации отправляет письмо на email
+      operationId: registerUser
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '201':
+          description: Регистрация прошла успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Неправильный запрос
+  /billing/put_money:
+    post:
+      tags:
+        - billingService
+      summary: Положить деньги на счет
+      description: Вернуть данные пользователя
+      operationId: putMoney
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: 
+                  type: integer
+                countMoney:
+                  type: integer
+              required: 
+                - userId
+                - countMoney
+            example: 
+              userid: 42
+              countMoney: 100
+      responses:
+        '202':
+          description: Сумма успешно поступила на счет
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: 
+                    type: integer
+                  userAccount:
+                    type: string
+              example: 
+                userId: 42
+                userAccount: 1234567890
+        '400':
+          description: Ошибка поступления денег на счет
+  /billing/get_money:
+    post:
+      tags:
+        - billingService
+      summary: Получить деньги со счета
+      description: Вернуть данные пользователя
+      operationId: getMoney
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: 
+                  type: integer
+                countMoney:
+                  type: integer
+                rcvAccount:
+                  type: string
+              required: 
+                - userId
+                - countMoney
+                - rcvAccount
+            example: 
+              userId: 42
+              countMoney: 100
+              rcvAccount: 9876543210
+      responses:
+        '202':
+          description: Сумма со счета успешно получена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: 
+                    type: integer
+                  userAccount:
+                    type: string
+              example: 
+                userId: 42
+                userAccount: 9876543210
+        '400':
+          description: Ошибка получение денег
+  /billing/create_order:
+    post:
+      tags:
+        - billingService
+      summary: Оформление заказа
+      description: Вернуть данные пользователя
+      operationId: createOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemId: 
+                  type: integer
+                cost:
+                  type: integer
+              required: 
+                - itemId
+                - cost
+            example: 
+              itemId: 666
+              cost: 100
+      responses:
+        '201':
+          description: Заказ оформлен
+        '400':
+          description: Ошибка оформлении заказа
+  /order/pay:
+    post:
+      tags:
+        - orderService
+      summary: Покупка заказа
+      description: Вернуть данные пользователя
+      operationId: pay
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemId: 
+                  type: integer
+              required: 
+                - itemId
+            example: 
+              itemId: 666
+      responses:
+        '202':
+          description: Товар куплен
+        '400':
+          description: Ошибка покупке товара
+  /send_email:
+    post:
+      tags:
+        - notificationService
+      summary: Отослать email на почту
+      operationId: sendEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                context: 
+                  type: object
+                emailSubject:
+                  type: string
+              required: 
+                - email
+                - templateId
+                - context
+            example: 
+              email: "johnshow2021@mail.ru"
+              context: 
+                firstName: vasya
+                lastName: pupkin
+                userAccount: 1234567890
+              emailSubject: Заказ оформлен и оплачен
+      responses:
+        '202':
+          description: Отсылка взята в работу
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId: 
+                    type: string
+              example: 
+                jobId: 000123234091234
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+      required: 
+          - username
+          - password
+          - email
+  requestBodies:
+    User:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+          examples:
+            sample-user:
+              summary: Обычный пользователь
+              value:
+                username: johnsnow2021
+                firstName: John
+                lastName: Show
+                email: bestjohn@doe.com
+                phone: '+79999112233'
+                password: 'passw0rd'
+                address: 'Петровка 38'
+      description: User object that needs to be created
+      required: true

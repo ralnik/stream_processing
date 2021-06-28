@@ -1,0 +1,33 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: ralnik@mail.ru
+  title: Сервис заказа/Event Notifications
+  version: 0.1.0
+tags:
+  - name: billingService
+    description: Сервис работы с пользователем
+paths:
+  '/billing/pay':
+    post:
+      tags:
+        - billingService
+      description: Вернуть данные 
+      operationId: payOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cost: 
+                  type: integer
+              required: 
+                - cost
+            example: 
+              cost: 100
+      responses:
+        '201':
+          description: Заказ успешно оплачен
+        '404':
+          description: Ошибка оплаты заказа
